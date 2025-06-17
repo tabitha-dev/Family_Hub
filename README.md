@@ -41,7 +41,7 @@
 
 ## About The Project
 
-![Family Hub Screenshot](https://raw.githubusercontent.com/tabitha-dev/Family_Hub/main/family-hub-screenshot.png)
+
 
 *To add your own screenshot: take a picture of your app, name it `family-hub-screenshot.png`, and upload it to the main directory of your repository.*
 
@@ -82,7 +82,7 @@ This project is built with vanilla web technologies, keeping it lightweight, fas
 The application operates without a backend server by leveraging the browser's **`localStorage`** API.
 
 1.  **Initialization:** On the first visit, the app creates a default data structure in `localStorage`.
-2.  **Data Persistence:** Every change you make—adding a chore, editing a meal, etc.—is instantly saved to `localStorage`.
+2.  **Data Persistence:** Every change you make adding a chore, editing a meal, etc.is instantly saved to `localStorage`.
 3.  **Data Retrieval:** When you open or refresh the page, the app reads your saved data from `localStorage` and populates the interface.
 
 This ensures your data is persistent on your device without compromising your privacy.
