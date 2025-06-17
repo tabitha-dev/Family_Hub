@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Hub</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;700">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <style>
+        /* Custom styles for the app */
+        :root {
+            --background: #faf8fc;
+            --text-primary: #130d1b;
+            --text-secondary: #6e4c9a;
+            --accent: #9b59f1;
+            --accent-light: #ece7f3;
+            --border-color: #dacfe7;
+            --checkbox-tick-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(250,248,252)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z%27/%3e%3c/svg%3e');
+        }
+        .dark {
+            --background: #130d1b;
+            --text-primary: #faf8fc;
+            --text-secondary: #dacfe7;
+            --accent: #9b59f1;
+            --accent-light: #2a2135;
+            --border-color: #4a3f55;
+            --checkbox-tick-svg: url('data:image/svg+xml,%3csvg viewBox=%270 0 16 16%27 fill=%27rgb(19,13,27)%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cpath d=%27M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z%27/%3e%3c/svg%3e');
+        }
+        body {
+            font-family: "Space Grotesk", "Noto Sans", sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+        }
+        .bg-app { background-color: var(--background); }
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .bg-accent { background-color: var(--accent); }
+        .text-accent-light-text { color: var(--background); }
+        .bg-accent-light { background-color: var(--accent-light); }
+        .border-app { border-color: var(--border-color); }
+        .nav-link.active { background-color: var(--accent-light); }
+        .checkbox-custom {
+             appearance: none;
+             background-color: transparent;
+             border-width: 2px;
+             border-radius: 0.25rem;
+             border-color: var(--border-color);
+        }
+        .checkbox-custom:checked {
+            background-image: var(--checkbox-tick-svg);
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 50; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: var(--background);
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 0.75rem;
+        }
+        [contenteditable]:focus {
+            outline: 2px solid var(--accent);
+            background-color: var(--accent-light);
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(10px); }
+            10% { opacity: 1; transform: translateY(0); }
+            90% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(10px); }
+        }
+        .animate-fade-in-out {
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-app">
+    <div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
+        <div class="layout-container flex h-full grow flex-col md:flex-row">
+            <!-- Sidebar -->
+            <div class="flex-shrink-0 w-full md:w-80 border-b md:border-b-0 md:border-r border-app">
+                <div class="flex h-full flex-col p-4 bg-app">
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center gap-3">
+                            <img id="user-avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" src="https://placehold.co/40x40/ece7f3/130d1b?text=U" alt="User Avatar"/>
+                            <h1 id="user-greeting" class="text-primary text-base font-medium leading-normal">Hi, User!</h1>
+                        </div>
+                        <nav id="sidebar-nav" class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
+                            <a href="#dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer active">
+                                <div class="text-primary" data-icon="House"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Dashboard</p>
+                            </a>
+                            <a href="#meal-plans" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="CookingPot"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M88,48V16a8,8,0,0,1,16,0V48a8,8,0,0,1-16,0Zm40,8a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,128,56Zm32,0a8,8,0,0,0,8-8V16a8,8,0,0,0-16,0V48A8,8,0,0,0,160,56Zm92.8,46.4L224,124v60a32,32,0,0,1-32,32H64a32,32,0,0,1-32-32V124L3.2,102.4a8,8,0,0,1,9.6-12.8L32,104V88A16,16,0,0,1,48,72H208a16,16,0,0,1,16,16v16l19.2-14.4a8,8,0,0,1,9.6,12.8ZM208,88H48v96a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Meal Plans</p>
+                            </a>
+                            <a href="#grocery-lists" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="ListBullets"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M80,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H88A8,8,0,0,1,80,64Zm136,56H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM44,52A12,12,0,1,0,56,64,12,12,0,0,0,44,52Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,116Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,180Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Grocery Lists</p>
+                            </a>
+                             <a href="#chores" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="CheckSquare"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM224,48V208a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM208,208V48H48V208H208Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Chores</p>
+                            </a>
+                            <a href="#calendar" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="Calendar"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Calendar</p>
+                            </a>
+                             <a href="#guide" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="Question"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80a8,8,0,0,1-8-8,24,24,0,0,1,24-24,8,8,0,0,1,0,16,8,8,0,0,0-8,8,8,8,0,0,1-8,8Zm28,20a12,12,0,1,1-12-12A12,12,0,0,1,148,156Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Guide</p>
+                            </a>
+                            <a href="#settings" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer">
+                                <div class="text-primary" data-icon="Gear"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm88-29.84q.06-2.16,0-4.32l14.92-18.64a8,8,0,0,0,1.48-7.06,107.21,107.21,0,0,0-10.88-26.25,8,8,0,0,0-6-3.93l-23.72-2.64q-1.48-1.56-3-3L186,40.54a8,8,0,0,0-3.94-6,107.71,107.71,0,0,0-26.25-10.87,8,8,0,0,0-7.06,1.49L130.16,40Q128,40,125.84,40L107.2,25.11a8,8,0,0,0-7.06-1.48A107.6,107.6,0,0,0,73.89,34.51a8,8,0,0,0-3.93,6L67.32,64.27q-1.56,1.49-3,3L40.54,70a8,8,0,0,0-6,3.94,107.71,107.71,0,0,0-10.87,26.25,8,8,0,0,0,1.49,7.06L40,125.84Q40,128,40,130.16L25.11,148.8a8,8,0,0,0-1.48,7.06,107.21,107.21,0,0,0,10.88,26.25,8,8,0,0,0,6,3.93l23.72,2.64q1.49,1.56,3,3L70,215.46a8,8,0,0,0,3.94,6,107.71,107.71,0,0,0,26.25,10.87,8,8,0,0,0,7.06-1.49L125.84,216q2.16.06,4.32,0l18.64,14.92a8,8,0,0,0,7.06,1.48,107.21,107.21,0,0,0,26.25-10.88,8,8,0,0,0,3.93-6l2.64-23.72q1.56-1.48,3-3L215.46,186a8,8,0,0,0,6-3.94,107.71,107.71,0,0,0,10.87-26.25,8,8,0,0,0-1.49-7.06Z"></path></svg></div>
+                                <p class="text-primary text-sm font-medium leading-normal">Settings</p>
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <main class="flex-1 layout-content-container flex flex-col p-4 md:p-6 lg:p-8 overflow-y-auto">
+                <div id="page-container">
+                    <!-- Dynamic Page Content Goes Here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="add-event-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4 text-primary">Add New Event</h2>
+            <form id="add-event-form">
+                <div class="mb-4">
+                    <label for="event-date" class="block text-sm font-medium text-secondary mb-1">Date</label>
+                    <input type="date" id="event-date" class="w-full rounded border-app bg-app p-2 text-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label for="event-time" class="block text-sm font-medium text-secondary mb-1">Time</label>
+                    <input type="time" id="event-time" class="w-full rounded border-app bg-app p-2 text-primary" required>
+                </div>
+                <div class="mb-4">
+                    <label for="event-title" class="block text-sm font-medium text-secondary mb-1">Event Title</label>
+                    <input type="text" id="event-title" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Family Movie Night" required>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" class="modal-cancel-btn px-4 py-2 rounded-full bg-accent-light text-primary font-medium">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-full bg-accent text-accent-light-text font-medium">Save Event</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+     <div id="add-chore-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4 text-primary">Add New Chore</h2>
+            <form id="add-chore-form">
+                <div class="mb-4">
+                    <label for="chore-title" class="block text-sm font-medium text-secondary mb-1">Chore</label>
+                    <input type="text" id="chore-title" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Clean the kitchen" required>
+                </div>
+                <div class="mb-4">
+                    <label for="chore-assignee" class="block text-sm font-medium text-secondary mb-1">Assign To</label>
+                    <select id="chore-assignee" class="w-full rounded border-app bg-app p-2 text-primary" required>
+                       <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" class="modal-cancel-btn px-4 py-2 rounded-full bg-accent-light text-primary font-medium">Cancel</button>
+                    <button type="submit" id="add-chore-submit-btn" class="px-4 py-2 rounded-full bg-accent text-accent-light-text font-medium disabled:opacity-50">Save Chore</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="add-grocery-item-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4 text-primary">Add Grocery Item</h2>
+            <form id="add-grocery-item-form">
+                <div class="mb-4">
+                    <label for="grocery-item-name" class="block text-sm font-medium text-secondary mb-1">Item Name</label>
+                    <input type="text" id="grocery-item-name" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., 2 lbs Apples" required>
+                </div>
+                <div class="mb-4">
+                    <label for="grocery-item-category" class="block text-sm font-medium text-secondary mb-1">Category</label>
+                    <input type="text" id="grocery-item-category" list="category-suggestions" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Produce" required>
+                     <datalist id="category-suggestions">
+                        <!-- Options will be populated by JS -->
+                    </datalist>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button type="button" class="modal-cancel-btn px-4 py-2 rounded-full bg-accent-light text-primary font-medium">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-full bg-accent text-accent-light-text font-medium">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA MANAGEMENT ---
+        const AppData = {
+            get: (key, defaultValue) => {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : defaultValue;
+            },
+            set: (key, value) => {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+            defaults: {
+                chores: [],
+                groceryList: {},
+                calendarEvents: {},
+                mealPlan: [
+                     { day: 'Monday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Tuesday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Wednesday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Thursday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Friday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Saturday', breakfast: '...', lunch: '...', dinner: '...' },
+                     { day: 'Sunday', breakfast: '...', lunch: '...', dinner: '...' },
+                ],
+                familyMembers: [],
+                settings: {
+                    theme: 'light',
+                    userName: 'User'
+                }
+            },
+            init: () => {
+                Object.keys(AppData.defaults).forEach(key => {
+                    if (localStorage.getItem(key) === null) {
+                        AppData.set(key, AppData.defaults[key]);
+                    }
+                });
+            }
+        };
+
+        // --- TEMPLATES FOR DYNAMIC PAGES ---
+        const PageTemplates = {
+            dashboard: `
+                <h1 class="text-primary tracking-light text-[32px] font-bold leading-tight min-w-72">Dashboard</h1>
+                <section>
+                    <h2 class="text-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">Upcoming Meals</h2>
+                    <div id="dashboard-meals" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                </section>
+                <section>
+                    <h2 class="text-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">Today's Chores</h2>
+                    <div id="dashboard-chores" class="flex flex-col gap-2"></div>
+                </section>
+                <section>
+                   <h2 class="text-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">Today's Events</h2>
+                    <div id="dashboard-calendar" class="flex flex-col gap-2"></div>
+                </section>`,
+            mealPlans: `
+                <div class="flex flex-wrap justify-between gap-3 mb-4">
+                   <div class="flex min-w-72 flex-col gap-3">
+                       <p class="text-primary tracking-light text-[32px] font-bold leading-tight">Weekly Meal Plan</p>
+                       <p class="text-secondary text-sm font-normal">Click any meal to edit it.</p>
+                   </div>
+                </div>
+                <div class="py-3 @container">
+                   <div class="overflow-x-auto rounded-xl border border-app bg-app">
+                       <table class="w-full">
+                           <thead>
+                               <tr class="bg-app">
+                                   <th class="px-4 py-3 text-left text-primary w-1/4 text-sm font-medium">Day</th>
+                                   <th class="px-4 py-3 text-left text-primary w-1/4 text-sm font-medium">Breakfast</th>
+                                   <th class="px-4 py-3 text-left text-primary w-1/4 text-sm font-medium">Lunch</th>
+                                   <th class="px-4 py-3 text-left text-primary w-1/4 text-sm font-medium">Dinner</th>
+                               </tr>
+                           </thead>
+                           <tbody id="meal-plan-table-body"></tbody>
+                       </table>
+                   </div>
+               </div>`,
+            groceryLists: `
+                <div class="flex flex-wrap justify-between gap-3 mb-4">
+                    <p class="text-primary tracking-light text-[32px] font-bold leading-tight min-w-72">Grocery List</p>
+                    <button id="add-grocery-item-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-accent text-accent-light-text text-sm font-bold tracking-[0.015em]">
+                        <span class="truncate">Add Item</span>
+                    </button>
+                </div>
+                <div id="grocery-list-container"></div>`,
+            chores: `
+                <div class="flex flex-wrap justify-between gap-3 mb-4">
+                    <div class="flex min-w-72 flex-col gap-3">
+                        <p class="text-primary tracking-light text-[32px] font-bold leading-tight">Chore Assignments</p>
+                        <p class="text-secondary text-sm font-normal">Add family members in Settings to assign chores.</p>
+                    </div>
+                     <button id="add-chore-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-accent text-accent-light-text text-sm font-bold tracking-[0.015em]">
+                        <span class="truncate">Add Chore</span>
+                    </button>
+                 </div>
+                 <div class="py-3 @container">
+                    <div class="overflow-x-auto rounded-xl border border-app bg-app">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-primary w-[30%] text-sm font-medium">Chore</th>
+                                    <th class="px-4 py-3 text-left text-primary w-[30%] text-sm font-medium">Assigned To</th>
+                                    <th class="px-4 py-3 text-left text-primary w-[25%] text-sm font-medium">Status</th>
+                                    <th class="px-4 py-3 text-left text-primary w-[15%] text-sm font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="chores-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>`,
+            calendar: `
+                <div class="flex flex-wrap justify-between gap-3 p-4">
+                    <p class="text-primary tracking-light text-[32px] font-bold leading-tight min-w-72">Calendar</p>
+                    <button id="add-event-btn" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-10 px-4 bg-accent text-accent-light-text text-sm font-bold leading-normal">
+                        <span class="truncate">Add Event</span>
+                    </button>
+                </div>
+                <div class="flex flex-wrap items-start justify-center gap-6 p-4">
+                    <div class="flex min-w-72 max-w-[400px] flex-1 flex-col gap-0.5">
+                        <div class="flex items-center p-1 justify-between">
+                            <button id="prev-month-btn"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg></div></button>
+                            <p id="month-year-header" class="text-primary text-base font-bold leading-tight flex-1 text-center"></p>
+                            <button id="next-month-btn"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg></div></button>
+                        </div>
+                        <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+                    </div>
+                     <div id="calendar-event-list" class="flex min-w-72 max-w-[400px] flex-1 flex-col gap-2 mt-4 md:mt-0">
+                        <h3 id="event-list-header" class="text-primary text-lg font-bold"></h3>
+                        <div id="event-details" class="flex flex-col gap-3"></div>
+                    </div>
+                </div>`,
+            guide: `
+                <h1 class="text-primary tracking-light text-[32px] font-bold leading-tight">How to Use Your Family Hub</h1>
+                <div class="mt-6 space-y-6 text-primary">
+                    <div class="p-4 rounded-lg border border-app bg-accent-light bg-opacity-50">
+                        <h2 class="text-xl font-bold mb-2">1. Set Up Your Family</h2>
+                        <p class="text-secondary">Go to <a href="#settings" class="font-bold underline nav-link-inline">Settings</a> > <span class="font-semibold">Family</span>. Add your name and the names of your family members. This will let you assign chores and track activities.</p>
+                    </div>
+                    <div class="p-4 rounded-lg border border-app">
+                        <h2 class="text-xl font-bold mb-2">2. Plan Your Week</h2>
+                        <ul class="list-disc list-inside space-y-2 text-secondary">
+                            <li><strong>Meal Plans:</strong> Click directly on any meal in the <a href="#meal-plans" class="font-bold underline nav-link-inline">Meal Plans</a> table to type and edit it.</li>
+                            <li><strong>Grocery List:</strong> Add items to your <a href="#grocery-lists" class="font-bold underline nav-link-inline">Grocery List</a>. You can create your own categories.</li>
+                            <li><strong>Chores:</strong> Add tasks on the <a href="#chores" class="font-bold underline nav-link-inline">Chores</a> page and assign them to family members. Click the status button to cycle through 'Not Started', 'In Progress', and 'Completed'.</li>
+                            <li><strong>Calendar:</strong> Schedule appointments and events in the <a href="#calendar" class="font-bold underline nav-link-inline">Calendar</a>. Click a day to see its events and add new ones.</li>
+                        </ul>
+                    </div>
+                    <div class="p-4 rounded-lg border border-app">
+                        <h2 class="text-xl font-bold mb-2">3. Your Data is Yours</h2>
+                        <p class="text-secondary">Everything is saved automatically to your browser's local storage. There's no login and your data doesn't leave your computer. You can use the <a href="#settings" class="font-bold underline nav-link-inline">Settings</a> > <span class="font-semibold">Data Management</span> section to export your data for backup or import it on another device.</p>
+                    </div>
+                </div>
+                `,
+            settings: `
+                 <h1 class="text-primary tracking-light text-[32px] font-bold leading-tight min-w-72">Settings</h1>
+                 
+                 <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 mt-4">Profile</h3>
+                 <div class="px-4">
+                     <label for="user-name-input" class="block text-sm font-medium text-secondary mb-1">Your Name</label>
+                     <input type="text" id="user-name-input" class="w-full max-w-sm rounded border-app bg-app p-2 text-primary" />
+                 </div>
+
+                 <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 mt-4">Family</h3>
+                 <div id="family-members-container" class="px-4"></div>
+                 <form id="add-family-member-form" class="px-4 pt-4 flex gap-2 items-end">
+                    <div>
+                        <label for="family-member-name" class="block text-sm font-medium text-secondary mb-1">Add Family Member</label>
+                        <input type="text" id="family-member-name" placeholder="Enter name" class="rounded border-app bg-app p-2 text-primary" required/>
+                    </div>
+                    <button type="submit" class="h-10 px-4 rounded bg-accent text-accent-light-text font-medium text-sm">Add</button>
+                 </form>
+
+                 <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 mt-4">Appearance</h3>
+                 <div class="flex flex-wrap gap-3 p-4">
+                     <label class="text-sm font-medium flex items-center justify-center rounded-xl border border-app px-4 h-11 text-primary has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-accent relative cursor-pointer">
+                         Light <input type="radio" class="invisible absolute" name="theme" value="light" id="theme-light-radio"/>
+                     </label>
+                     <label class="text-sm font-medium flex items-center justify-center rounded-xl border border-app px-4 h-11 text-primary has-[:checked]:border-[3px] has-[:checked]:px-3.5 has-[:checked]:border-accent relative cursor-pointer">
+                         Dark <input type="radio" class="invisible absolute" name="theme" value="dark" id="theme-dark-radio"/>
+                     </label>
+                 </div>
+                 <h3 class="text-primary text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4 mt-4">Data Management</h3>
+                 <div class="p-4 space-y-2">
+                     <div class="flex items-center gap-4 bg-app p-3 rounded-lg border border-app justify-between">
+                         <div>
+                             <p class="text-primary font-medium">Export Data</p>
+                             <p class="text-secondary text-sm">Export all your data to a JSON file.</p>
+                         </div>
+                         <button id="export-data-btn" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
+                            <div class="text-primary flex size-7 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H72a8,8,0,0,1,0,16H32v64H224V136H184a8,8,0,0,1,0-16h40A16,16,0,0,1,240,136Zm-117.66-2.34a8,8,0,0,0,11.32,0l48-48a8,8,0,0,0-11.32-11.32L136,108.69V24a8,8,0,0,0-16,0v84.69L85.66,74.34A8,8,0,0,0,74.34,85.66Z"/></svg></div>
+                         </button>
+                     </div>
+                     <div class="flex items-center gap-4 bg-app p-3 rounded-lg border border-app justify-between">
+                         <div>
+                             <p class="text-primary font-medium">Import Data</p>
+                             <p class="text-secondary text-sm">Import from a JSON file. This will overwrite current data.</p>
+                         </div>
+                         <button id="import-data-btn" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
+                             <div class="text-primary flex size-7 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H80a8,8,0,0,1,0,16H32v64H224V136H176a8,8,0,0,1,0-16h48A16,16,0,0,1,240,136ZM85.66,77.66,120,43.31V128a8,8,0,0,0,16,0V43.31l34.34,34.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,77.66Z"/></svg></div>
+                             <input type="file" id="import-file-input" class="hidden" accept=".json">
+                         </button>
+                     </div>
+                 </div>`
+        };
+
+        // --- APP INITIALIZATION & ROUTER ---
+        document.addEventListener('DOMContentLoaded', () => {
+            AppData.init();
+            Router.init();
+            ThemeManager.init();
+            UI.updateUserUI();
+            Modal.init();
+        });
+
+        const Router = {
+            init: () => {
+                window.addEventListener('hashchange', Router.handleRouteChange);
+                Router.handleRouteChange(); // Handle initial load
+
+                // Delegate clicks from the sidebar
+                document.getElementById('sidebar-nav').addEventListener('click', (e) => {
+                    const navLink = e.target.closest('a.nav-link');
+                    if (navLink) {
+                        e.preventDefault();
+                        window.location.hash = navLink.getAttribute('href');
+                    }
+                });
+
+                // Delegate clicks from inline content links
+                document.getElementById('page-container').addEventListener('click', (e) => {
+                    const navLink = e.target.closest('a.nav-link-inline');
+                    if (navLink) {
+                        e.preventDefault();
+                        window.location.hash = navLink.getAttribute('href');
+                    }
+                });
+            },
+
+            // Converts 'kebab-case' from hash to 'camelCase' for object keys
+            kebabToCamel: (s) => s.replace(/-./g, x => x[1].toUpperCase()),
+
+            handleRouteChange: () => {
+                const hash = window.location.hash.substring(1); // e.g., 'meal-plans'
+                const pageKey = Router.kebabToCamel(hash) || 'dashboard'; // e.g., 'mealPlans'
+                Router.showPage(pageKey);
+
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                const activeLink = document.querySelector(`.nav-link[href="#${hash}"]`) || document.querySelector('.nav-link[href="#dashboard"]');
+                if (activeLink) activeLink.classList.add('active');
+            },
+
+            showPage: (pageKey) => {
+                const pageContainer = document.getElementById('page-container');
+                const template = PageTemplates[pageKey] || PageTemplates.dashboard;
+                pageContainer.innerHTML = template;
+
+                // A map of page keys to their initialization functions
+                const pageInitializers = {
+                    dashboard: Dashboard.render,
+                    mealPlans: MealPlan.render,
+                    groceryLists: GroceryList.render,
+                    chores: Chores.render,
+                    calendar: Calendar.init,
+                    settings: Settings.init,
+                    guide: () => {} // No-op for the static guide page
+                };
+                
+                // Call the initializer for the current page
+                if (pageInitializers[pageKey]) {
+                    pageInitializers[pageKey]();
+                } else {
+                    pageInitializers.dashboard(); // Fallback to dashboard
+                }
+            }
+        };
+        
+        // --- UI & THEME MANAGEMENT ---
+        const UI = {
+            updateUserUI: () => {
+                const settings = AppData.get('settings');
+                const name = settings.userName;
+                document.getElementById('user-greeting').textContent = `Hi, ${name}!`;
+                const initial = name ? name.charAt(0).toUpperCase() : '?';
+                document.getElementById('user-avatar').src = `https://placehold.co/40x40/ece7f3/130d1b?text=${initial}`;
+            },
+            showToast: (message) => {
+                const toast = document.createElement('div');
+                toast.textContent = message;
+                toast.className = 'fixed bottom-5 right-5 bg-accent text-accent-light-text px-4 py-2 rounded-lg shadow-lg animate-fade-in-out z-50';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+        };
+
+        const ThemeManager = {
+            init: () => {
+                const settings = AppData.get('settings');
+                ThemeManager.applyTheme(settings.theme);
+            },
+            applyTheme: (theme) => {
+                 document.documentElement.classList.toggle('dark', theme === 'dark');
+            },
+            setTheme: (theme) => {
+                ThemeManager.applyTheme(theme);
+                const settings = AppData.get('settings');
+                settings.theme = theme;
+                AppData.set('settings', settings);
+            }
+        };
+        
+        // --- MODAL & FORM HANDLING (CENTRALIZED) ---
+        const Modal = {
+            init: () => {
+                document.addEventListener('click', (e) => {
+                    if (e.target.matches('.modal-cancel-btn') || e.target.matches('.modal')) {
+                        e.target.closest('.modal').style.display = 'none';
+                    }
+                });
+                
+                document.getElementById('add-event-form').addEventListener('submit', Calendar.handleFormSubmit);
+                document.getElementById('add-chore-form').addEventListener('submit', Chores.handleFormSubmit);
+                document.getElementById('add-grocery-item-form').addEventListener('submit', GroceryList.handleFormSubmit);
+            },
+            open: (modalId) => document.getElementById(modalId).style.display = 'block',
+            close: (modalId) => document.getElementById(modalId).style.display = 'none'
+        };
+
+        // --- PAGE-SPECIFIC MODULES ---
+
+        const Dashboard = {
+            render: () => {
+                Dashboard.renderMeals();
+                Dashboard.renderChores();
+                Dashboard.renderCalendar();
+            },
+            renderMeals: () => {
+                const mealPlan = AppData.get('mealPlan');
+                const container = document.getElementById('dashboard-meals');
+                container.innerHTML = '';
+                const todayIndex = (new Date().getDay() + 6) % 7;
+                const upcomingMeals = mealPlan.slice(todayIndex).concat(mealPlan.slice(0, todayIndex)).slice(0, 4);
+
+                let mealsAdded = 0;
+                upcomingMeals.forEach(meal => {
+                    if (meal.dinner && meal.dinner !== '...') {
+                        container.innerHTML += `
+                            <div class="flex h-full flex-1 flex-col gap-2 rounded-lg min-w-40">
+                                <img class="w-full bg-center aspect-square bg-cover rounded-xl" src="https://placehold.co/160x160/ece7f3/130d1b?text=${encodeURIComponent(meal.dinner)}" onerror="this.src='https://placehold.co/160x160/ece7f3/130d1b?text=Meal';" alt="${meal.dinner}">
+                                <div><p class="text-primary font-medium truncate">${meal.dinner}</p><p class="text-secondary text-sm">${meal.day}</p></div>
+                            </div>`;
+                        mealsAdded++;
+                    }
+                });
+                if (mealsAdded === 0) container.innerHTML = `<p class="text-secondary p-4 col-span-full">No upcoming meals planned.</p>`;
+            },
+            renderChores: () => {
+                const chores = AppData.get('chores');
+                const container = document.getElementById('dashboard-chores');
+                container.innerHTML = '';
+                const incompleteChores = chores.filter(c => c.status !== 'Completed').slice(0, 3);
+                if (incompleteChores.length === 0) {
+                     container.innerHTML = `<p class="text-secondary p-4">No pending chores. Great job!</p>`;
+                     return;
+                }
+                incompleteChores.forEach(chore => {
+                    container.innerHTML += `
+                        <div class="flex items-center gap-4 bg-app px-4 min-h-[72px] py-2 rounded-lg border border-app">
+                            <div class="flex-grow"><p class="text-primary font-medium">${chore.task}</p><p class="text-secondary text-sm">Assigned to: ${chore.assignedTo}</p></div>
+                            <span class="text-sm font-semibold px-3 py-1 rounded-full ${chore.status === 'In Progress' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'}">${chore.status}</span>
+                        </div>`;
+                });
+             },
+             renderCalendar: () => {
+                const events = AppData.get('calendarEvents');
+                const container = document.getElementById('dashboard-calendar');
+                const today = new Date();
+                const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                const todaysEvents = (events[todayKey] || []).sort((a,b) => a.time.localeCompare(b.time));
+
+                container.innerHTML = '';
+                if (todaysEvents.length === 0) {
+                     container.innerHTML = `<p class="text-secondary p-4">No events scheduled for today.</p>`;
+                     return;
+                }
+                todaysEvents.forEach(event => {
+                     const time = new Date(`1970-01-01T${event.time}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                     container.innerHTML += `
+                        <div class="flex items-center gap-4 bg-app px-4 min-h-[72px] py-2 rounded-lg border border-app">
+                            <div class="text-primary flex items-center justify-center rounded-lg bg-accent-light shrink-0 size-12"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg></div>
+                            <div><p class="text-primary font-medium">${event.title}</p><p class="text-secondary text-sm">${time}</p></div>
+                        </div>`;
+                });
+            }
+        };
+
+        const MealPlan = {
+            render: () => {
+                const mealPlan = AppData.get('mealPlan');
+                const tableBody = document.getElementById('meal-plan-table-body');
+                tableBody.innerHTML = '';
+                mealPlan.forEach((dayPlan, index) => {
+                    tableBody.innerHTML += `
+                        <tr class="border-t border-app">
+                            <td class="h-[72px] px-4 py-2 text-primary text-sm font-medium">${dayPlan.day}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="breakfast">${dayPlan.breakfast}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="lunch">${dayPlan.lunch}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="dinner">${dayPlan.dinner}</td>
+                        </tr>`;
+                });
+                MealPlan.addEventListeners();
+            },
+            addEventListeners: () => {
+                document.querySelectorAll('.meal-cell').forEach(cell => {
+                    cell.addEventListener('blur', (e) => {
+                        const { dayIndex, meal } = e.target.dataset;
+                        const mealPlan = AppData.get('mealPlan');
+                        mealPlan[dayIndex][meal] = e.target.textContent;
+                        AppData.set('mealPlan', mealPlan);
+                        UI.showToast("Meal plan updated!");
+                    });
+                });
+            }
+        };
+
+        const GroceryList = {
+            render: () => {
+                const groceryList = AppData.get('groceryList');
+                const container = document.getElementById('grocery-list-container');
+                container.innerHTML = '';
+
+                if (Object.keys(groceryList).length === 0) {
+                    container.innerHTML = `<p class="text-secondary p-4">Your grocery list is empty. Click "Add Item" to get started!</p>`;
+                } else {
+                    Object.keys(groceryList).sort().forEach(category => {
+                        if (groceryList[category].length > 0) {
+                            let categoryHtml = `<h3 class="text-primary text-lg font-bold px-4 pb-2 pt-4">${category}</h3><div class="px-4">`;
+                            groceryList[category].forEach((item, index) => {
+                                 categoryHtml += `
+                                    <div class="flex items-center justify-between gap-x-3 py-3 border-b border-app">
+                                        <label class="flex items-center gap-x-3 flex-grow cursor-pointer">
+                                            <input type="checkbox" data-category="${category}" data-index="${index}" class="checkbox-custom h-5 w-5" ${item.checked ? 'checked' : ''}>
+                                            <p class="text-primary text-base ${item.checked ? 'line-through text-secondary' : ''}">${item.item}</p>
+                                        </label>
+                                        <button class="delete-grocery-item-btn p-1 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-category="${category}" data-index="${index}">
+                                            <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
+                                        </button>
+                                     </div>`;
+                            });
+                            categoryHtml += '</div>';
+                            container.innerHTML += categoryHtml;
+                        }
+                    });
+                }
+                GroceryList.initPageEventListeners();
+            },
+            initPageEventListeners: () => {
+                document.querySelectorAll('#grocery-list-container input[type="checkbox"]').forEach(c => c.addEventListener('change', GroceryList.handleToggle));
+                document.querySelectorAll('.delete-grocery-item-btn').forEach(b => b.addEventListener('click', GroceryList.handleDelete));
+                
+                const addBtn = document.getElementById('add-grocery-item-btn');
+                if (addBtn) {
+                    addBtn.addEventListener('click', () => {
+                        const categoryDatalist = document.getElementById('category-suggestions');
+                        const existingCategories = Object.keys(AppData.get('groceryList'));
+                        categoryDatalist.innerHTML = existingCategories.map(c => `<option value="${c}"></option>`).join('');
+                        Modal.open('add-grocery-item-modal');
+                    });
+                }
+            },
+            handleFormSubmit: (e) => {
+                e.preventDefault();
+                const name = document.getElementById('grocery-item-name').value;
+                const category = document.getElementById('grocery-item-category').value.trim() || 'Other';
+                const groceryList = AppData.get('groceryList');
+                if (!groceryList[category]) groceryList[category] = [];
+                groceryList[category].push({ item: name, checked: false });
+                AppData.set('groceryList', groceryList);
+                GroceryList.render();
+                Modal.close('add-grocery-item-modal');
+                e.target.reset();
+            },
+            handleToggle: (e) => {
+                const { category, index } = e.target.dataset;
+                const groceryList = AppData.get('groceryList');
+                groceryList[category][index].checked = e.target.checked;
+                AppData.set('groceryList', groceryList);
+                GroceryList.render();
+            },
+            handleDelete: (e) => {
+                const { category, index } = e.currentTarget.dataset;
+                const groceryList = AppData.get('groceryList');
+                groceryList[category].splice(index, 1);
+                if (groceryList[category].length === 0) delete groceryList[category];
+                AppData.set('groceryList', groceryList);
+                GroceryList.render();
+            }
+        };
+
+        const Chores = {
+            render: () => {
+                const chores = AppData.get('chores');
+                const tableBody = document.getElementById('chores-table-body');
+                tableBody.innerHTML = '';
+                 if (chores.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="4" class="text-center text-secondary p-8">No chores added yet.</td></tr>`;
+                } else {
+                    chores.forEach(chore => {
+                        tableBody.innerHTML += `
+                            <tr class="border-t border-app">
+                                <td class="h-[72px] px-4 py-2 text-primary">${chore.task}</td>
+                                <td class="h-[72px] px-4 py-2 text-secondary">${chore.assignedTo}</td>
+                                <td class="h-[72px] px-4 py-2">
+                                     <button class="chore-status-btn flex w-full items-center justify-center rounded-full h-8 px-4 bg-accent-light text-primary text-sm font-medium" data-id="${chore.id}">
+                                        ${chore.status}
+                                    </button>
+                                </td>
+                                 <td class="h-[72px] px-4 py-2 text-center">
+                                    <button class="delete-chore-btn p-2 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-id="${chore.id}">
+                                        <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
+                                    </button>
+                                </td>
+                            </tr>`;
+                    });
+                }
+                Chores.initPageEventListeners();
+            },
+            initPageEventListeners: () => {
+                document.querySelectorAll('.chore-status-btn').forEach(b => b.addEventListener('click', Chores.handleStatusChange));
+                document.querySelectorAll('.delete-chore-btn').forEach(b => b.addEventListener('click', Chores.handleDelete));
+                const addBtn = document.getElementById('add-chore-btn');
+                if(addBtn) {
+                     addBtn.addEventListener('click', () => {
+                        const family = AppData.get('familyMembers');
+                        const select = document.getElementById('chore-assignee');
+                        const submitBtn = document.getElementById('add-chore-submit-btn');
+                        if (family.length > 0) {
+                            select.innerHTML = family.map(m => `<option value="${m}">${m}</option>`).join('');
+                            submitBtn.disabled = false;
+                        } else {
+                            select.innerHTML = '<option value="" disabled selected>Add members in Settings first</option>';
+                            submitBtn.disabled = true;
+                        }
+                        Modal.open('add-chore-modal');
+                    });
+                }
+            },
+            handleFormSubmit: (e) => {
+                e.preventDefault();
+                const assignee = document.getElementById('chore-assignee').value;
+                if (!assignee) {
+                    alert("Please assign the chore to a family member. You can add family members in the Settings page.");
+                    return;
+                }
+                const chores = AppData.get('chores');
+                chores.push({
+                    id: Date.now(),
+                    task: document.getElementById('chore-title').value,
+                    assignedTo: assignee,
+                    status: 'Not Started'
+                });
+                AppData.set('chores', chores);
+                Chores.render();
+                Modal.close('add-chore-modal');
+                e.target.reset();
+            },
+            handleStatusChange: (e) => {
+                const choreId = parseInt(e.currentTarget.dataset.id);
+                const chores = AppData.get('chores');
+                const chore = chores.find(c => c.id === choreId);
+                if (chore) {
+                    const statuses = ['Not Started', 'In Progress', 'Completed'];
+                    chore.status = statuses[(statuses.indexOf(chore.status) + 1) % 3];
+                    AppData.set('chores', chores);
+                    Chores.render();
+                }
+            },
+            handleDelete: (e) => {
+                const choreId = parseInt(e.currentTarget.dataset.id);
+                AppData.set('chores', AppData.get('chores').filter(c => c.id !== choreId));
+                Chores.render();
+            }
+        };
+        
+        const Calendar = {
+            currentDate: new Date(),
+            init: () => {
+                Calendar.render();
+                Calendar.initPageEventListeners();
+            },
+            initPageEventListeners: () => {
+                document.getElementById('prev-month-btn').addEventListener('click', () => { Calendar.currentDate.setMonth(Calendar.currentDate.getMonth() - 1); Calendar.render(); });
+                document.getElementById('next-month-btn').addEventListener('click', () => { Calendar.currentDate.setMonth(Calendar.currentDate.getMonth() + 1); Calendar.render(); });
+                const addBtn = document.getElementById('add-event-btn');
+                if(addBtn) addBtn.addEventListener('click', () => Modal.open('add-event-modal'));
+            },
+            handleFormSubmit: (e) => {
+                e.preventDefault();
+                const date = document.getElementById('event-date').value;
+                if (!date) { alert('Please select a date.'); return; }
+                const events = AppData.get('calendarEvents');
+                if (!events[date]) events[date] = [];
+                events[date].push({ 
+                    time: document.getElementById('event-time').value, 
+                    title: document.getElementById('event-title').value 
+                });
+                AppData.set('calendarEvents', events);
+                Calendar.render();
+                Calendar.renderEventListForDate(date);
+                Modal.close('add-event-modal');
+                e.target.reset();
+            },
+            render: () => {
+                const month = Calendar.currentDate.getMonth();
+                const year = Calendar.currentDate.getFullYear();
+                document.getElementById('month-year-header').textContent = `${Calendar.currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+                const grid = document.getElementById('calendar-grid');
+                grid.innerHTML = '';
+                ['S', 'M', 'T', 'W', 'T', 'F', 'S'].forEach(day => grid.innerHTML += `<p class="text-primary text-[13px] font-bold flex h-12 w-full items-center justify-center">${day}</p>`);
+                for (let i = 0; i < new Date(year, month, 1).getDay(); i++) grid.innerHTML += '<div></div>';
+                const events = AppData.get('calendarEvents');
+                for (let day = 1; day <= new Date(year, month + 1, 0).getDate(); day++) {
+                    const today = new Date();
+                    const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                    const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    const hasEvent = events[dateKey] && events[dateKey].length > 0;
+                    let dayClass = 'flex size-full items-center justify-center rounded-full cursor-pointer hover:bg-accent-light';
+                    if (isToday) dayClass += ' bg-accent text-accent-light-text';
+                    if (hasEvent && !isToday) dayClass += ' border-2 border-accent';
+                    grid.innerHTML += `<button class="h-12 w-full text-primary text-sm font-medium" data-date="${dateKey}"><div class="${dayClass}">${day}</div></button>`;
+                }
+                Calendar.addDayClickListeners();
+                Calendar.renderEventListForDate(null);
+            },
+             addDayClickListeners: () => {
+                document.querySelectorAll('#calendar-grid button').forEach(b => b.addEventListener('click', (e) => {
+                    const dateKey = e.currentTarget.dataset.date;
+                    Calendar.renderEventListForDate(dateKey);
+                    document.querySelectorAll('#calendar-grid button > div').forEach(d => d.classList.remove('ring-2', 'ring-accent'));
+                    e.currentTarget.querySelector('div').classList.add('ring-2', 'ring-accent');
+                }));
+            },
+            renderEventListForDate: (dateKey) => {
+                 const container = document.getElementById('event-details');
+                 const header = document.getElementById('event-list-header');
+                 if (!dateKey) {
+                    header.textContent = 'Events';
+                    container.innerHTML = '<p class="text-secondary">Select a date to see events.</p>';
+                    return;
+                 }
+                 const date = new Date(dateKey + 'T00:00:00');
+                 header.textContent = `Events for ${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })}`;
+                 const eventsForDay = (AppData.get('calendarEvents')[dateKey] || []).sort((a,b) => a.time.localeCompare(b.time));
+                 if (eventsForDay.length === 0) {
+                     container.innerHTML = '<p class="text-secondary">No events for this day.</p>';
+                     return;
+                 }
+                 container.innerHTML = '';
+                 eventsForDay.forEach((event, index) => {
+                    const time = new Date(`1970-01-01T${event.time}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+                    container.innerHTML += `
+                        <div class="flex items-center gap-4 bg-app p-3 rounded-lg border border-app">
+                            <div class="flex-grow"><p class="text-primary font-medium">${event.title}</p><p class="text-secondary text-sm">${time}</p></div>
+                            <button class="delete-event-btn p-1 text-secondary hover:text-red-500" data-date="${dateKey}" data-index="${index}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
+                        </div>`;
+                });
+                document.querySelectorAll('.delete-event-btn').forEach(b => b.addEventListener('click', e => {
+                    const { date, index } = e.currentTarget.dataset;
+                    const allEvents = AppData.get('calendarEvents');
+                    allEvents[date].splice(index, 1);
+                    if(allEvents[date].length === 0) delete allEvents[date];
+                    AppData.set('calendarEvents', allEvents);
+                    Calendar.render();
+                    Calendar.renderEventListForDate(date);
+                }));
+            }
+        };
+
+        const Settings = {
+            init: () => {
+                const settings = AppData.get('settings');
+                document.getElementById('theme-light-radio').checked = settings.theme === 'light';
+                document.getElementById('theme-dark-radio').checked = settings.theme === 'dark';
+                document.querySelectorAll('input[name="theme"]').forEach(r => r.addEventListener('change', (e) => ThemeManager.setTheme(e.target.value)));
+                
+                const nameInput = document.getElementById('user-name-input');
+                nameInput.value = settings.userName;
+                nameInput.addEventListener('input', (e) => {
+                    const newSettings = AppData.get('settings');
+                    newSettings.userName = e.target.value || 'User';
+                    AppData.set('settings', newSettings);
+                    UI.updateUserUI();
+                });
+                 nameInput.addEventListener('blur', (e) => {
+                    if (e.target.value.trim()){
+                        UI.showToast("User name saved!");
+                    }
+                });
+
+                Settings.renderFamily();
+                document.getElementById('add-family-member-form').addEventListener('submit', Settings.addFamilyMember);
+                document.getElementById('export-data-btn').addEventListener('click', Settings.exportData);
+                document.getElementById('import-data-btn').addEventListener('click', () => document.getElementById('import-file-input').click());
+                document.getElementById('import-file-input').addEventListener('change', Settings.importData);
+            },
+            renderFamily: () => {
+                const members = AppData.get('familyMembers');
+                const container = document.getElementById('family-members-container');
+                container.innerHTML = members.length > 0 
+                    ? members.map(member => `
+                        <div class="flex items-center justify-between p-2 border-b border-app">
+                            <p class="text-primary">${member}</p>
+                            <button class="delete-family-member-btn p-1 text-secondary hover:text-red-500" data-name="${member}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
+                        </div>`).join('')
+                    : `<p class="text-secondary p-2">No family members added yet.</p>`;
+                
+                document.querySelectorAll('.delete-family-member-btn').forEach(btn => btn.addEventListener('click', Settings.deleteFamilyMember));
+            },
+            addFamilyMember: (e) => {
+                e.preventDefault();
+                const input = document.getElementById('family-member-name');
+                const name = input.value.trim();
+                if (name) {
+                    const members = AppData.get('familyMembers');
+                    if (!members.includes(name)) {
+                        members.push(name);
+                        AppData.set('familyMembers', members);
+                        Settings.renderFamily();
+                    }
+                    input.value = '';
+                }
+            },
+            deleteFamilyMember: (e) => {
+                const nameToDelete = e.currentTarget.dataset.name;
+                AppData.set('familyMembers', AppData.get('familyMembers').filter(m => m !== nameToDelete));
+                Settings.renderFamily();
+            },
+            exportData: () => {
+                const dataToExport = {};
+                Object.keys(AppData.defaults).forEach(key => { dataToExport[key] = AppData.get(key); });
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataToExport, null, 2));
+                const anchor = document.createElement('a');
+                anchor.href = dataStr;
+                anchor.download = "family_hub_data.json";
+                anchor.click();
+            },
+            importData: (event) => {
+                const fileReader = new FileReader();
+                fileReader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Object.keys(AppData.defaults).every(key => importedData[key] !== undefined)) {
+                             Object.keys(importedData).forEach(key => AppData.set(key, importedData[key]));
+                            alert('Data imported successfully! The page will now reload.');
+                            location.reload();
+                        } else {
+                            alert('Import failed: File is missing required data keys.');
+                        }
+                    } catch (error) {
+                        alert('Error importing data. Please make sure it is a valid JSON file from this app.');
+                    }
+                };
+                fileReader.readAsText(event.target.files[0]);
+            }
+        };
+
+    </script>
+</body>
+</html>
