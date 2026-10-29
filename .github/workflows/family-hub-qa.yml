@@ -17,10 +17,12 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install 'playwright==1.57.0'
       - run: python -m playwright install --with-deps chromium
+      - run: npm install --no-save axe-core@4.10.3
       - name: Verify responsive app
         run: |
           python -m http.server 8000 > /tmp/family-hub-server.log 2>&1 &
           python scripts/qa_responsive.py
+          python scripts/qa_accessibility.py
       - name: Attach screenshots and test results
         if: always()
         uses: actions/upload-artifact@v4
