@@ -112,7 +112,7 @@
                     <div class="fh-brand"><span class="fh-brand-mark" aria-hidden="true">⌂</span><span><strong>Family Hub</strong><small>Better days together</small></span></div>
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-3">
-                            <img id="user-avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" src="https://placehold.co/40x40/ece7f3/130d1b?text=U" alt="User Avatar"/>
+                            <span id="user-avatar" class="fh-avatar" aria-hidden="true">U</span>
                             <p id="user-greeting" class="text-primary text-base font-medium leading-normal">Hi, User!</p>
                         </div>
                         <nav id="sidebar-nav" aria-label="Family Hub sections" class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
@@ -250,13 +250,15 @@
 
     <script>
         // --- DATA MANAGEMENT ---
+        const escapeHTML = value => String(value ?? "").replace(/[&<>"\']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","\'":"&#39;"}[ch]));
         const AppData = {
             get: (key, defaultValue) => {
-                const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : defaultValue;
+                try { const stored = localStorage.getItem(key); return stored !== null ? JSON.parse(stored) : (defaultValue ?? AppData.defaults[key]); }
+                catch(error) { return defaultValue ?? AppData.defaults[key]; }
             },
             set: (key, value) => {
-                localStorage.setItem(key, JSON.stringify(value));
+                try { localStorage.setItem(key, JSON.stringify(value)); }
+                catch(error) { document.getElementById("fh-status").textContent = "Could not save changes. Browser storage may be disabled or full."; }
             },
             defaults: {
                 chores: [],
@@ -501,12 +503,12 @@
 
             handleRouteChange: () => {
                 const hash = window.location.hash.substring(1); // e.g., 'meal-plans'
-                const pageKey = Router.kebabToCamel(hash) || 'dashboard'; // e.g., 'mealPlans'
+                const pageKey = PageTemplates[Router.kebabToCamel(hash)] ? Router.kebabToCamel(hash) : 'dashboard'; // e.g., 'mealPlans'
                 Router.showPage(pageKey);
 
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                document.querySelectorAll('.nav-link').forEach(l => {l.classList.remove('active');l.removeAttribute('aria-current');});
                 const activeLink = document.querySelector(`.nav-link[href="#${hash}"]`) || document.querySelector('.nav-link[href="#dashboard"]');
-                if (activeLink) activeLink.classList.add('active');
+                if (activeLink) {activeLink.classList.add('active');activeLink.setAttribute('aria-current','page');}
             },
 
             showPage: (pageKey) => {
@@ -541,7 +543,7 @@
                 const name = settings.userName;
                 document.getElementById('user-greeting').textContent = `Hi, ${name}!`;
                 const initial = name ? name.charAt(0).toUpperCase() : '?';
-                document.getElementById('user-avatar').src = `https://placehold.co/40x40/ece7f3/130d1b?text=${initial}`;
+                document.getElementById('user-avatar').textContent = initial;
             },
             showToast: (message) => {
                 const toast = document.createElement('div');
@@ -573,16 +575,22 @@
             init: () => {
                 document.addEventListener('click', (e) => {
                     if (e.target.matches('.modal-cancel-btn') || e.target.matches('.modal')) {
-                        e.target.closest('.modal').style.display = 'none';
+                        Modal.close(e.target.closest('.modal').id);
                     }
                 });
                 
+                document.addEventListener('keydown', e => {
+                    const open=[...document.querySelectorAll('.modal')].find(el=>el.style.display==='block');
+                    if(!open)return;
+                    if(e.key==='Escape'){e.preventDefault();Modal.close(open.id);}
+                    if(e.key==='Tab'){const items=[...open.querySelectorAll('input:not(:disabled),select:not(:disabled),button:not(:disabled)')].filter(el=>el.offsetParent!==null);if(!items.length)return;const first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+                });
                 document.getElementById('add-event-form').addEventListener('submit', Calendar.handleFormSubmit);
                 document.getElementById('add-chore-form').addEventListener('submit', Chores.handleFormSubmit);
                 document.getElementById('add-grocery-item-form').addEventListener('submit', GroceryList.handleFormSubmit);
             },
-            open: (modalId) => document.getElementById(modalId).style.display = 'block',
-            close: (modalId) => document.getElementById(modalId).style.display = 'none'
+            open: (modalId) => {const panel=document.getElementById(modalId);Modal.previousFocus=document.activeElement;panel.style.display='block';panel.querySelector('input,select,button')?.focus();},
+            close: (modalId) => {document.getElementById(modalId).style.display='none';Modal.previousFocus?.focus();}
         };
 
         // --- PAGE-SPECIFIC MODULES ---
@@ -605,8 +613,8 @@
                     if (meal.dinner && meal.dinner !== '...') {
                         container.innerHTML += `
                             <div class="flex h-full flex-1 flex-col gap-2 rounded-lg min-w-40">
-                                <img class="w-full bg-center aspect-square bg-cover rounded-xl" src="https://placehold.co/160x160/ece7f3/130d1b?text=${encodeURIComponent(meal.dinner)}" onerror="this.src='https://placehold.co/160x160/ece7f3/130d1b?text=Meal';" alt="${meal.dinner}">
-                                <div><p class="text-primary font-medium truncate">${meal.dinner}</p><p class="text-secondary text-sm">${meal.day}</p></div>
+                                <img class="w-full bg-center aspect-square bg-cover rounded-xl" src="https://placehold.co/160x160/ece7f3/130d1b?text=${encodeURIComponent(meal.dinner)}" onerror="this.src='https://placehold.co/160x160/ece7f3/130d1b?text=Meal';" alt="${escapeHTML(meal.dinner)}">
+                                <div><p class="text-primary font-medium truncate">${escapeHTML(meal.dinner)}</p><p class="text-secondary text-sm">${escapeHTML(meal.day)}</p></div>
                             </div>`;
                         mealsAdded++;
                     }
@@ -625,7 +633,7 @@
                 incompleteChores.forEach(chore => {
                     container.innerHTML += `
                         <div class="flex items-center gap-4 bg-app px-4 min-h-[72px] py-2 rounded-lg border border-app">
-                            <div class="flex-grow"><p class="text-primary font-medium">${chore.task}</p><p class="text-secondary text-sm">Assigned to: ${chore.assignedTo}</p></div>
+                            <div class="flex-grow"><p class="text-primary font-medium">${escapeHTML(chore.task)}</p><p class="text-secondary text-sm">Assigned to: ${escapeHTML(chore.assignedTo)}</p></div>
                             <span class="text-sm font-semibold px-3 py-1 rounded-full ${chore.status === 'In Progress' ? 'bg-yellow-200 text-yellow-800' : 'bg-red-200 text-red-800'}">${chore.status}</span>
                         </div>`;
                 });
@@ -647,7 +655,7 @@
                      container.innerHTML += `
                         <div class="flex items-center gap-4 bg-app px-4 min-h-[72px] py-2 rounded-lg border border-app">
                             <div class="text-primary flex items-center justify-center rounded-lg bg-accent-light shrink-0 size-12"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg></div>
-                            <div><p class="text-primary font-medium">${event.title}</p><p class="text-secondary text-sm">${time}</p></div>
+                            <div><p class="text-primary font-medium">${escapeHTML(event.title)}</p><p class="text-secondary text-sm">${time}</p></div>
                         </div>`;
                 });
             }
@@ -662,9 +670,9 @@
                     tableBody.innerHTML += `
                         <tr class="border-t border-app">
                             <td class="h-[72px] px-4 py-2 text-primary text-sm font-medium">${dayPlan.day}</td>
-                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="breakfast">${dayPlan.breakfast}</td>
-                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="lunch">${dayPlan.lunch}</td>
-                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="dinner">${dayPlan.dinner}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="breakfast">${escapeHTML(dayPlan.breakfast)}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="lunch">${escapeHTML(dayPlan.lunch)}</td>
+                            <td class="meal-cell h-[72px] px-4 py-2 text-secondary text-sm" contenteditable="true" data-day-index="${index}" data-meal="dinner">${escapeHTML(dayPlan.dinner)}</td>
                         </tr>`;
                 });
                 MealPlan.addEventListeners();
@@ -693,15 +701,15 @@
                 } else {
                     Object.keys(groceryList).sort().forEach(category => {
                         if (groceryList[category].length > 0) {
-                            let categoryHtml = `<h3 class="text-primary text-lg font-bold px-4 pb-2 pt-4">${category}</h3><div class="px-4">`;
+                            let categoryHtml = `<h3 class="text-primary text-lg font-bold px-4 pb-2 pt-4">${escapeHTML(category)}</h3><div class="px-4">`;
                             groceryList[category].forEach((item, index) => {
                                  categoryHtml += `
                                     <div class="flex items-center justify-between gap-x-3 py-3 border-b border-app">
                                         <label class="flex items-center gap-x-3 flex-grow cursor-pointer">
-                                            <input type="checkbox" data-category="${category}" data-index="${index}" class="checkbox-custom h-5 w-5" ${item.checked ? 'checked' : ''}>
-                                            <p class="text-primary text-base ${item.checked ? 'line-through text-secondary' : ''}">${item.item}</p>
+                                            <input type="checkbox" data-category="${escapeHTML(category)}" data-index="${index}" class="checkbox-custom h-5 w-5" ${item.checked ? 'checked' : ''}>
+                                            <p class="text-primary text-base ${item.checked ? 'line-through text-secondary' : ''}">${escapeHTML(item.item)}</p>
                                         </label>
-                                        <button class="delete-grocery-item-btn p-1 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-category="${category}" data-index="${index}">
+                                        <button class="delete-grocery-item-btn p-1 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-category="${escapeHTML(category)}" data-index="${index}">
                                             <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
                                         </button>
                                      </div>`;
@@ -722,7 +730,7 @@
                     addBtn.addEventListener('click', () => {
                         const categoryDatalist = document.getElementById('category-suggestions');
                         const existingCategories = Object.keys(AppData.get('groceryList'));
-                        categoryDatalist.innerHTML = existingCategories.map(c => `<option value="${c}"></option>`).join('');
+                        categoryDatalist.innerHTML = existingCategories.map(c => `<option value="${escapeHTML(c)}"></option>`).join('');
                         Modal.open('add-grocery-item-modal');
                     });
                 }
@@ -767,8 +775,8 @@
                     chores.forEach(chore => {
                         tableBody.innerHTML += `
                             <tr class="border-t border-app">
-                                <td class="h-[72px] px-4 py-2 text-primary">${chore.task}</td>
-                                <td class="h-[72px] px-4 py-2 text-secondary">${chore.assignedTo}</td>
+                                <td class="h-[72px] px-4 py-2 text-primary">${escapeHTML(chore.task)}</td>
+                                <td class="h-[72px] px-4 py-2 text-secondary">${escapeHTML(chore.assignedTo)}</td>
                                 <td class="h-[72px] px-4 py-2">
                                      <button class="chore-status-btn flex w-full items-center justify-center rounded-full h-8 px-4 bg-accent-light text-primary text-sm font-medium" data-id="${chore.id}">
                                         ${chore.status}
@@ -794,7 +802,7 @@
                         const select = document.getElementById('chore-assignee');
                         const submitBtn = document.getElementById('add-chore-submit-btn');
                         if (family.length > 0) {
-                            select.innerHTML = family.map(m => `<option value="${m}">${m}</option>`).join('');
+                            select.innerHTML = family.map(m => `<option value="${escapeHTML(m)}">${escapeHTML(m)}</option>`).join('');
                             submitBtn.disabled = false;
                         } else {
                             select.innerHTML = '<option value="" disabled selected>Add members in Settings first</option>';
@@ -919,7 +927,7 @@
                     const time = new Date(`1970-01-01T${event.time}`).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
                     container.innerHTML += `
                         <div class="flex items-center gap-4 bg-app p-3 rounded-lg border border-app">
-                            <div class="flex-grow"><p class="text-primary font-medium">${event.title}</p><p class="text-secondary text-sm">${time}</p></div>
+                            <div class="flex-grow"><p class="text-primary font-medium">${escapeHTML(event.title)}</p><p class="text-secondary text-sm">${time}</p></div>
                             <button class="delete-event-btn p-1 text-secondary hover:text-red-500" data-date="${dateKey}" data-index="${index}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
                         </div>`;
                 });
@@ -968,8 +976,8 @@
                 container.innerHTML = members.length > 0 
                     ? members.map(member => `
                         <div class="flex items-center justify-between p-2 border-b border-app">
-                            <p class="text-primary">${member}</p>
-                            <button class="delete-family-member-btn p-1 text-secondary hover:text-red-500" data-name="${member}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
+                            <p class="text-primary">${escapeHTML(member)}</p>
+                            <button class="delete-family-member-btn p-1 text-secondary hover:text-red-500" data-name="${escapeHTML(member)}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
                         </div>`).join('')
                     : `<p class="text-secondary p-2">No family members added yet.</p>`;
                 
@@ -1004,12 +1012,15 @@
                 anchor.click();
             },
             importData: (event) => {
+                if(!event.target.files?.[0])return;
+                if(event.target.files[0].size>5*1024*1024){alert('Choose a backup smaller than 5 MB.');return;}
                 const fileReader = new FileReader();
                 fileReader.onload = (e) => {
                     try {
                         const importedData = JSON.parse(e.target.result);
-                        if (Object.keys(AppData.defaults).every(key => importedData[key] !== undefined)) {
-                             Object.keys(importedData).forEach(key => AppData.set(key, importedData[key]));
+                        const types={chores:Array.isArray(importedData.chores),groceryList:!!importedData.groceryList&&typeof importedData.groceryList==='object'&&!Array.isArray(importedData.groceryList),calendarEvents:!!importedData.calendarEvents&&typeof importedData.calendarEvents==='object'&&!Array.isArray(importedData.calendarEvents),mealPlan:Array.isArray(importedData.mealPlan),familyMembers:Array.isArray(importedData.familyMembers),settings:!!importedData.settings&&typeof importedData.settings==='object'};
+                        if (Object.values(types).every(Boolean) && confirm('Replace your existing Family Hub data with this backup? Export the current data first if needed.')) {
+                             Object.keys(AppData.defaults).forEach(key => AppData.set(key, importedData[key]));
                             alert('Data imported successfully! The page will now reload.');
                             location.reload();
                         } else {
@@ -1020,6 +1031,7 @@
                     }
                 };
                 fileReader.readAsText(event.target.files[0]);
+                event.target.value="";
             }
         };
 
