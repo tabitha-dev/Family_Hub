@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Family Hub</title>
+    <title>Family Hub | Free Local-First Family Planner & Calendar</title>
+    <meta name="description" content="Keep family meals, groceries, chores, and events organized in one free, private browser-based family planner. Works on desktop and mobile, with JSON backup and restore.">
+    <link rel="canonical" href="https://tabitha-dev.github.io/Family_Hub/">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <meta name="theme-color" content="#f8f6ff">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Family Hub | Your Family's Plans in One Place">
+    <meta property="og:description" content="A free, local-first planner for family meals, chores, shopping and events. Responsive, accessible and easy to use.">
+    <meta property="og:url" content="https://tabitha-dev.github.io/Family_Hub/">
+    <meta property="og:image" content="https://tabitha-dev.github.io/Family_Hub/social-preview.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Family Hub | Free Family Planner">
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Family Hub","url":"https://tabitha-dev.github.io/Family_Hub/","description":"Free browser-based family planner for meals, groceries, chores and calendar events, with local data storage and manual backup and restore.","applicationCategory":"LifestyleApplication","operatingSystem":"Any","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Meal planner","Grocery list","Chore assignments","Family calendar","Local JSON backup and restore"]}</script>
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;700">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -86,19 +99,23 @@
             animation: fadeInOut 3s ease-in-out forwards;
         }
     </style>
+    <link rel="stylesheet" href="./family-hub-ui.css">
 </head>
 <body class="bg-app">
+    <a class="fh-skip" href="#page-container">Skip to main content</a>
+    <div id="fh-status" class="fh-visually-hidden" role="status" aria-live="polite"></div>
     <div class="relative flex size-full min-h-screen flex-col group/design-root overflow-x-hidden">
         <div class="layout-container flex h-full grow flex-col md:flex-row">
             <!-- Sidebar -->
-            <div class="flex-shrink-0 w-full md:w-80 border-b md:border-b-0 md:border-r border-app">
+            <aside id="fh-sidebar" class="flex-shrink-0 w-full md:w-80 border-b md:border-b-0 md:border-r border-app">
                 <div class="flex h-full flex-col p-4 bg-app">
+                    <div class="fh-brand"><span class="fh-brand-mark" aria-hidden="true">⌂</span><span><strong>Family Hub</strong><small>Better days together</small></span></div>
                     <div class="flex flex-col gap-4">
                         <div class="flex items-center gap-3">
                             <img id="user-avatar" class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" src="https://placehold.co/40x40/ece7f3/130d1b?text=U" alt="User Avatar"/>
-                            <h1 id="user-greeting" class="text-primary text-base font-medium leading-normal">Hi, User!</h1>
+                            <p id="user-greeting" class="text-primary text-base font-medium leading-normal">Hi, User!</p>
                         </div>
-                        <nav id="sidebar-nav" class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
+                        <nav id="sidebar-nav" aria-label="Family Hub sections" class="flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0">
                             <a href="#dashboard" class="nav-link flex items-center gap-3 px-3 py-2 rounded-full cursor-pointer active">
                                 <div class="text-primary" data-icon="House"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,115.55V208a16,16,0,0,1-16,16H168a16,16,0,0,1-16-16V168a8,8,0,0,0-8-8H112a8,8,0,0,0-8,8v40a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V115.55a16,16,0,0,1,5.17-11.78l80-75.48.11-.11a16,16,0,0,1,21.53,0,1.14,1.14,0,0,0,.11.11l80,75.48A16,16,0,0,1,224,115.55Z"></path></svg></div>
                                 <p class="text-primary text-sm font-medium leading-normal">Dashboard</p>
@@ -130,19 +147,39 @@
                         </nav>
                     </div>
                 </div>
-            </div>
+            </aside>
 
             <!-- Main Content -->
-            <main class="flex-1 layout-content-container flex flex-col p-4 md:p-6 lg:p-8 overflow-y-auto">
-                <div id="page-container">
+            <main id="fh-main" class="flex-1 layout-content-container flex flex-col p-4 md:p-6 lg:p-8 overflow-y-auto">
+                <header class="fh-topbar"><div><span class="fh-eyebrow">HOME / ORGANIZED</span><p id="fh-topbar-heading">Today at a glance</p></div><div class="fh-device-indicator"><span aria-hidden="true">●</span> Saved in this browser</div></header>
+                <div id="page-container" tabindex="-1">
                     <!-- Dynamic Page Content Goes Here -->
                 </div>
+                <section id="fh-about" class="fh-about" aria-labelledby="fh-about-title">
+                  <h2 id="fh-about-title">A simpler way to plan family life</h2>
+                  <p>Family Hub is a free family calendar, meal planner, grocery organizer, and chore tracker. It runs in your browser without an account or a paid subscription.</p>
+                  <div class="fh-faq">
+                    <details><summary>What can I organize in Family Hub?</summary><p>Plan breakfasts, lunches and dinners, assign chores, track grocery items and add family calendar events.</p></details>
+                    <details><summary>Does Family Hub sync across devices?</summary><p>No. Information is stored in this browser on this device, not shared automatically. Use the JSON export and import tools in Settings to transfer it manually.</p></details>
+                    <details><summary>Is Family Hub free and private?</summary><p>Yes, this demo is free and needs no account. Household entries are stored in browser localStorage. Browser data can be cleared, and external resources such as fonts may still make network requests.</p></details>
+                  </div>
+                </section>
             </main>
         </div>
     </div>
+    <nav class="fh-bottom-nav" aria-label="Mobile family navigation">
+      <a href="#dashboard" class="fh-tab" data-route="dashboard"><span aria-hidden="true">⌂</span>Home</a>
+      <a href="#meal-plans" class="fh-tab" data-route="meal-plans"><span aria-hidden="true">◫</span>Meals</a>
+      <a href="#grocery-lists" class="fh-tab" data-route="grocery-lists"><span aria-hidden="true">▤</span>Groceries</a>
+      <a href="#calendar" class="fh-tab" data-route="calendar"><span aria-hidden="true">▦</span>Calendar</a>
+      <button type="button" id="fh-more-trigger" class="fh-tab" aria-controls="fh-more-panel" aria-expanded="false"><span aria-hidden="true">•••</span>More</button>
+    </nav>
+    <div id="fh-more-panel" class="fh-more-panel" hidden>
+      <a href="#chores">✓ Chores</a><a href="#guide">? Help &amp; tips</a><a href="#settings">⚙ Settings</a>
+    </div>
 
     <!-- Modals -->
-    <div id="add-event-modal" class="modal">
+    <div id="add-event-modal" class="modal" role="dialog" aria-modal="true" aria-label="Add family event">
         <div class="modal-content">
             <h2 class="text-xl font-bold mb-4 text-primary">Add New Event</h2>
             <form id="add-event-form">
@@ -166,7 +203,7 @@
         </div>
     </div>
     
-     <div id="add-chore-modal" class="modal">
+     <div id="add-chore-modal" class="modal" role="dialog" aria-modal="true" aria-label="Add family chore">
         <div class="modal-content">
             <h2 class="text-xl font-bold mb-4 text-primary">Add New Chore</h2>
             <form id="add-chore-form">
@@ -188,7 +225,7 @@
         </div>
     </div>
     
-    <div id="add-grocery-item-modal" class="modal">
+    <div id="add-grocery-item-modal" class="modal" role="dialog" aria-modal="true" aria-label="Add grocery item">
         <div class="modal-content">
             <h2 class="text-xl font-bold mb-4 text-primary">Add Grocery Item</h2>
             <form id="add-grocery-item-form">
@@ -252,7 +289,18 @@
         // --- TEMPLATES FOR DYNAMIC PAGES ---
         const PageTemplates = {
             dashboard: `
-                <h1 class="text-primary tracking-light text-[32px] font-bold leading-tight min-w-72">Dashboard</h1>
+                <section class="fh-hero" aria-labelledby="fh-hero-heading">
+                  <div class="fh-hero-copy"><span class="fh-eyebrow">ALL THE LITTLE THINGS, IN ONE PLACE</span><h1 id="fh-hero-heading">Make more room for <em>family time.</em></h1><p>Your meals, moments, lists, and responsibilities, beautifully organized in one place.</p><div class="fh-hero-actions"><a href="#calendar">Plan an event</a><a href="#grocery-lists">Open grocery list</a></div></div>
+                  <div class="fh-hero-art" aria-hidden="true">
+                    <div class="fh-orbit fh-orbit-one"></div><div class="fh-orbit fh-orbit-two"></div>
+                    <div class="fh-home-illustration"><div class="fh-house-roof"></div><div class="fh-house-body"><span class="fh-house-window"></span><span class="fh-house-door"></span></div></div>
+                    <div class="fh-floating-bubble fh-bubble-calendar"><span>31</span><small>OCT</small></div>
+                    <div class="fh-floating-bubble fh-bubble-check">✓</div>
+                    <div class="fh-floating-bubble fh-bubble-heart">♥</div>
+                  </div>
+                </section>
+                <section class="fh-daily-overview" aria-label="Today in numbers"><article><span class="fh-summary-icon">✓</span><strong id="fh-stat-chores">0</strong><span>Chores remaining</span></article><article><span class="fh-summary-icon">▦</span><strong id="fh-stat-events">0</strong><span>Events today</span></article><article><span class="fh-summary-icon">▤</span><strong id="fh-stat-grocery">0</strong><span>Groceries to get</span></article></section>
+                <div class="fh-dashboard-title"><h2>Today's plan</h2><span id="fh-date-label"></span></div>
                 <section>
                     <h2 class="text-primary text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-5">Upcoming Meals</h2>
                     <div id="dashboard-meals" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
