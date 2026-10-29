@@ -175,3 +175,12 @@ button:disabled{opacity:.65;cursor:not-allowed}
 .dark .fh-hero-actions a:nth-child(2){background:#332849;color:#fff;border-color:#75638b}
 .dark .fh-faq summary{color:var(--fh-ink)}
 @media(max-width:767px){.fh-meal-illustration{min-height:100px}.fh-meal-tile{padding:10px}.fh-device-indicator{max-width:125px}}
+
+
+/* Lock the mobile brand header height; avoid old full-height sidebar utility stretching it. */
+@media(max-width:767px){
+  #fh-sidebar{height:65px!important;min-height:65px!important;max-height:65px!important;flex:0 0 65px!important;overflow:hidden}
+  #fh-sidebar>.flex{height:65px!important;min-height:65px!important;max-height:65px!important;display:flex;justify-content:center;padding:9px 16px!important;overflow:hidden}
+  #fh-sidebar>.flex>.flex{display:none!important}
+  .fh-hero-actions a{flex:0 0 auto}
+}
