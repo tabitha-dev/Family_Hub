@@ -193,7 +193,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="event-title" class="block text-sm font-medium text-secondary mb-1">Event Title</label>
-                    <input type="text" id="event-title" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Family Movie Night" required>
+                    <input type="text" id="event-title" maxlength="120" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Family Movie Night" required>
                 </div>
                 <div class="flex justify-end gap-3">
                     <button type="button" class="modal-cancel-btn px-4 py-2 rounded-full bg-accent-light text-primary font-medium">Cancel</button>
@@ -209,7 +209,7 @@
             <form id="add-chore-form">
                 <div class="mb-4">
                     <label for="chore-title" class="block text-sm font-medium text-secondary mb-1">Chore</label>
-                    <input type="text" id="chore-title" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Clean the kitchen" required>
+                    <input type="text" id="chore-title" maxlength="120" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., Clean the kitchen" required>
                 </div>
                 <div class="mb-4">
                     <label for="chore-assignee" class="block text-sm font-medium text-secondary mb-1">Assign To</label>
@@ -231,7 +231,7 @@
             <form id="add-grocery-item-form">
                 <div class="mb-4">
                     <label for="grocery-item-name" class="block text-sm font-medium text-secondary mb-1">Item Name</label>
-                    <input type="text" id="grocery-item-name" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., 2 lbs Apples" required>
+                    <input type="text" id="grocery-item-name" maxlength="120" class="w-full rounded border-app bg-app p-2 text-primary" placeholder="e.g., 2 lbs Apples" required>
                 </div>
                 <div class="mb-4">
                     <label for="grocery-item-category" class="block text-sm font-medium text-secondary mb-1">Category</label>
@@ -380,9 +380,9 @@
                 <div class="flex flex-wrap items-start justify-center gap-6 p-4">
                     <div class="flex min-w-72 max-w-[400px] flex-1 flex-col gap-0.5">
                         <div class="flex items-center p-1 justify-between">
-                            <button id="prev-month-btn"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg></div></button>
+                            <button id="prev-month-btn" aria-label="Previous month"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg></div></button>
                             <p id="month-year-header" class="text-primary text-base font-bold leading-tight flex-1 text-center"></p>
-                            <button id="next-month-btn"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg></div></button>
+                            <button id="next-month-btn" aria-label="Next month"><div class="text-primary flex size-10 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg></div></button>
                         </div>
                         <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
                     </div>
@@ -427,7 +427,7 @@
                  <form id="add-family-member-form" class="px-4 pt-4 flex gap-2 items-end">
                     <div>
                         <label for="family-member-name" class="block text-sm font-medium text-secondary mb-1">Add Family Member</label>
-                        <input type="text" id="family-member-name" placeholder="Enter name" class="rounded border-app bg-app p-2 text-primary" required/>
+                        <input type="text" id="family-member-name" maxlength="120" placeholder="Enter name" class="rounded border-app bg-app p-2 text-primary" required/>
                     </div>
                     <button type="submit" class="h-10 px-4 rounded bg-accent text-accent-light-text font-medium text-sm">Add</button>
                  </form>
@@ -448,7 +448,7 @@
                              <p class="text-primary font-medium">Export Data</p>
                              <p class="text-secondary text-sm">Export all your data to a JSON file.</p>
                          </div>
-                         <button id="export-data-btn" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
+                         <button id="export-data-btn" aria-label="Download family backup" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
                             <div class="text-primary flex size-7 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H72a8,8,0,0,1,0,16H32v64H224V136H184a8,8,0,0,1,0-16h40A16,16,0,0,1,240,136Zm-117.66-2.34a8,8,0,0,0,11.32,0l48-48a8,8,0,0,0-11.32-11.32L136,108.69V24a8,8,0,0,0-16,0v84.69L85.66,74.34A8,8,0,0,0,74.34,85.66Z"/></svg></div>
                          </button>
                      </div>
@@ -457,9 +457,9 @@
                              <p class="text-primary font-medium">Import Data</p>
                              <p class="text-secondary text-sm">Import from a JSON file. This will overwrite current data.</p>
                          </div>
-                         <button id="import-data-btn" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
+                         <button id="import-data-btn" aria-label="Import family backup" class="shrink-0 p-2 rounded-full hover:bg-accent-light">
                              <div class="text-primary flex size-7 items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M240,136v64a16,16,0,0,1-16,16H32a16,16,0,0,1-16-16V136a16,16,0,0,1,16-16H80a8,8,0,0,1,0,16H32v64H224V136H176a8,8,0,0,1,0-16h48A16,16,0,0,1,240,136ZM85.66,77.66,120,43.31V128a8,8,0,0,0,16,0V43.31l34.34,34.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,77.66Z"/></svg></div>
-                             <input type="file" id="import-file-input" class="hidden" accept=".json">
+                             <input type="file" id="import-file-input" class="hidden" accept=".json,application/json" aria-label="Select Family Hub backup JSON file">
                          </button>
                      </div>
                  </div>`
@@ -709,7 +709,7 @@
                                             <input type="checkbox" data-category="${escapeHTML(category)}" data-index="${index}" class="checkbox-custom h-5 w-5" ${item.checked ? 'checked' : ''}>
                                             <p class="text-primary text-base ${item.checked ? 'line-through text-secondary' : ''}">${escapeHTML(item.item)}</p>
                                         </label>
-                                        <button class="delete-grocery-item-btn p-1 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-category="${escapeHTML(category)}" data-index="${index}">
+                                        <button class="delete-grocery-item-btn p-1 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" aria-label="Remove grocery item" data-category="${escapeHTML(category)}" data-index="${index}">
                                             <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
                                         </button>
                                      </div>`;
@@ -778,12 +778,12 @@
                                 <td class="h-[72px] px-4 py-2 text-primary">${escapeHTML(chore.task)}</td>
                                 <td class="h-[72px] px-4 py-2 text-secondary">${escapeHTML(chore.assignedTo)}</td>
                                 <td class="h-[72px] px-4 py-2">
-                                     <button class="chore-status-btn flex w-full items-center justify-center rounded-full h-8 px-4 bg-accent-light text-primary text-sm font-medium" data-id="${chore.id}">
+                                     <button aria-label="Change chore status" class="chore-status-btn flex w-full items-center justify-center rounded-full h-8 px-4 bg-accent-light text-primary text-sm font-medium" data-id="${chore.id}">
                                         ${chore.status}
                                     </button>
                                 </td>
                                  <td class="h-[72px] px-4 py-2 text-center">
-                                    <button class="delete-chore-btn p-2 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" data-id="${chore.id}">
+                                    <button class="delete-chore-btn p-2 rounded-full text-secondary hover:bg-red-100 hover:text-red-600" aria-label="Delete chore" data-id="${chore.id}">
                                         <svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192Z"/></svg>
                                     </button>
                                 </td>
@@ -928,7 +928,7 @@
                     container.innerHTML += `
                         <div class="flex items-center gap-4 bg-app p-3 rounded-lg border border-app">
                             <div class="flex-grow"><p class="text-primary font-medium">${escapeHTML(event.title)}</p><p class="text-secondary text-sm">${time}</p></div>
-                            <button class="delete-event-btn p-1 text-secondary hover:text-red-500" data-date="${dateKey}" data-index="${index}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
+                            <button class="delete-event-btn p-1 text-secondary hover:text-red-500" aria-label="Delete event" data-date="${dateKey}" data-index="${index}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
                         </div>`;
                 });
                 document.querySelectorAll('.delete-event-btn').forEach(b => b.addEventListener('click', e => {
@@ -977,7 +977,7 @@
                     ? members.map(member => `
                         <div class="flex items-center justify-between p-2 border-b border-app">
                             <p class="text-primary">${escapeHTML(member)}</p>
-                            <button class="delete-family-member-btn p-1 text-secondary hover:text-red-500" data-name="${escapeHTML(member)}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
+                            <button class="delete-family-member-btn p-1 text-secondary hover:text-red-500" aria-label="Remove family member" data-name="${escapeHTML(member)}"><svg class="pointer-events-none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Z"/></svg></button>
                         </div>`).join('')
                     : `<p class="text-secondary p-2">No family members added yet.</p>`;
                 
@@ -1036,5 +1036,6 @@
         };
 
     </script>
+    <script src="./family-hub-ui.js"></script>
 </body>
 </html>
