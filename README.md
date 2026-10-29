@@ -1,133 +1,53 @@
-<div align="center">
-  <h1 align="center">🏡 Family Hub</h1>
-  <p align="center">
-    A simple, private, and local-first dashboard to organize your family's life.
-    <br />
-    <br />
-    <a href="https://tabitha-dev.github.io/Family_Hub/"><strong>View Live Site »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/tabitha-dev/Family_Hub/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/tabitha-dev/Family_Hub/issues">Request Feature</a>
-  </p>
-</div>
+# Family Hub
 
-<p align="center">
-  <a href="https://github.com/tabitha-dev/Family_Hub/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
-  </a>
-  <a href="https://github.com/tabitha-dev/Family_Hub/issues">
-    <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat" alt="Contributions welcome">
-  </a>
-</p>
+**[Open Family Hub](https://tabitha-dev.github.io/Family_Hub/)** · [Source code](https://github.com/tabitha-dev/Family_Hub)
 
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li><a href="#about-the-project">About The Project</a></li>
-    <li><a href="#key-features">Key Features</a></li>
-    <li><a href="#built-with">Built With</a></li>
-    <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#getting-started">Getting Started</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-  </ol>
-</details>
+Family Hub is a free, independently developed family organizer for meals, groceries, chores and calendar events. Built with **HTML, CSS and vanilla JavaScript**, designed for desktop and mobile, and hosted as a static GitHub Pages site. This is **not** the Lumina Family OS project.
 
----
+## Features
 
-## About The Project
+- **Today at a glance:** pending chores, today's family events and groceries still to purchase.
+- **Meal planner:** plan breakfast, lunch and dinner for each day of the week.
+- **Grocery checklist:** group items by category, check off purchases, add and remove items.
+- **Chore assignments:** track family responsibilities and progress.
+- **Family calendar:** add events, browse months and view events by day.
+- **Appearance:** light and dark mode with keyboard-accessible controls.
+- **Local backups:** export and import household data as JSON.
 
+The responsive redesign includes a polished violet-and-cream visual identity, a dedicated mobile navigation bar with an accessible More menu, touch-friendly controls, semantic metadata, WebApplication structured data, a sitemap, and visible explanatory FAQs.
 
+## Data storage and privacy
 
-*To add your own screenshot: take a picture of your app, name it `family-hub-screenshot.png`, and upload it to the main directory of your repository.*
+All household data is stored in the **current browser's localStorage**, under its existing keys: `chores`, `groceryList`, `calendarEvents`, `mealPlan`, `familyMembers`, and `settings`. Those keys and data shapes are kept compatible with earlier versions.
 
-**Family Hub** is a single-page application designed to run entirely in your browser with no need for accounts or a backend server. It's a private, offline-first dashboard that helps you manage meal plans, grocery lists, chores, and calendar events for your entire family. The core philosophy is to provide a central organization tool without compromising on privacy.
+**Family Hub does not automatically synchronize across devices**. Export from Settings to make a backup or transfer information to a different browser. Clearing site data or using private browsing can remove saved information.
 
----
+Family items are not sent to a Family Hub backend, but external fonts and the Tailwind CDN can make network requests. Don't treat an ordinary shared browser as suitable storage for sensitive information.
 
-## Key Features
+## Accessibility, SEO and AEO
 
-* **✨ Privacy First:** All your data is saved securely in your browser's `localStorage`. Nothing is ever sent to a server.
-* **🏡 Personalized Dashboard:** Get an at-a-glance view of today's upcoming meals, pending chores, and scheduled events.
-* **📅 Interactive Planners:**
-    * **Meal Planner:** Click and edit a weekly calendar to plan breakfasts, lunches, and dinners.
-    * **Grocery List:** Add items, organize by category, and check them off as you shop.
-    * **Chore Chart:** Create tasks, assign them to family members, and track their status.
-    * **Event Calendar:** Manage appointments and birthdays with a full monthly view.
-* **🎨 Fully Customizable:**
-    * Add your own family members in the settings.
-    * Choose between a sleek light or dark theme.
-    * Import and export your data as a single file for backup or moving between computers.
+- Keyboard focus indication, a skip link, labeled dialogs, Escape and Tab handling, large touch targets and reduced-motion styles.
+- A semantic page structure and human-readable information about what the app does and how its privacy/storage model works.
+- HTML meta descriptions, canonical URL, Open Graph tags, favicon, sitemap and schema.org WebApplication JSON-LD.
+- User-entered text is escaped before being inserted into HTML templates to reduce injection risk.
+- Mobile/desktop browser tests should be checked per release. A full manual screen-reader / WCAG 2.2 AA audit is still required before claiming compliance.
 
----
+Search indexing and inclusion in AI-generated answers are not guaranteed by metadata.
 
-## Built With
+## Local development
 
-This project is built with vanilla web technologies, keeping it lightweight, fast, and easy to maintain.
+Serve this directory over HTTP, e.g.:
 
-<p align="left">
-  <a href="https://developer.mozilla.org/en-US/docs/Web/HTML"><img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5"></a>
-  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"></a>
-</p>
+```bash
+python -m http.server 8000
+```
 
----
+Then open http://localhost:8000. No build command, backend, account or paid service is required.
 
-## How It Works
+## Visual provenance
 
-The application operates without a backend server by leveraging the browser's **`localStorage`** API.
+The redesign uses bespoke CSS-based family-home artwork as a dependable local illustration. Additional OpenArt concepts may be adopted after review and optimization; unfinished art is not used as a runtime dependency.
 
-1.  **Initialization:** On the first visit, the app creates a default data structure in `localStorage`.
-2.  **Data Persistence:** Every change you make adding a chore, editing a meal, etc.is instantly saved to `localStorage`.
-3.  **Data Retrieval:** When you open or refresh the page, the app reads your saved data from `localStorage` and populates the interface.
+## License
 
-This ensures your data is persistent on your device without compromising your privacy.
-
----
-
-## 🏁 Getting Started
-
-To get a local copy up and running, follow these simple steps.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/tabitha-dev/Family_Hub.git](https://github.com/tabitha-dev/Family_Hub.git)
-    ```
-2.  **Navigate to the project directory:**
-    ```bash
-    cd Family_Hub
-    ```
-3.  **Open `index.html` in your browser:**
-    You can simply double-click the `index.html` file or use a local server extension (like Live Server for VS Code).
-
----
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See the `LICENSE` file for more information.
-
----
-
-## 📬 Contact
-
-Tabitha - [@tabitha-dev](https://github.com/tabitha-dev)
-
-Project Link: [https://github.com/tabitha-dev/Family_Hub](https://github.com/tabitha-dev/Family_Hub)
+See [LICENSE](LICENSE).
