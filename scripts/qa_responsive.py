@@ -54,7 +54,7 @@ async def main():
    await page.goto(ROOT+"#meal-plans",wait_until="domcontentloaded")
    cell=page.locator('.meal-cell[data-day-index="0"][data-meal="dinner"]')
    await cell.fill("Veggie pasta")
-   await page.locator("h1, .text-primary").first.click()
+   await cell.press("Tab")
    await page.reload(wait_until="domcontentloaded")
    assert "Veggie pasta" in await page.locator('.meal-cell[data-day-index="0"][data-meal="dinner"]').inner_text(),(label,"meal persistence")
    if label in ("desktop","phone","small-phone"):
